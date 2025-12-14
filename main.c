@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include <stdint.h>
 
+void draw_circle(uint32_t radius);
+void draw_ellipse(uint32_t x_axis, uint32_t y_axis);
+
+int main(int argc, char** argv)
+{
+    draw_circle(10);
+    printf("\n");
+    draw_ellipse(10, 5);
+
+    return 0;
+}
+
 void draw_circle(uint32_t radius)
 {
     uint32_t center_x = radius - 1;
@@ -25,10 +37,34 @@ void draw_circle(uint32_t radius)
     }
 }
 
-int main(int argc, char** argv)
+void draw_ellipse(uint32_t x_axis, uint32_t y_axis)
 {
-    uint32_t radius = 10;
-    draw_circle(radius);
+    uint32_t center_x = x_axis - 1;
+    uint32_t center_y = y_axis - 1;
+    uint32_t end_x = x_axis * 2;
+    uint32_t end_y = y_axis * 2;
+    uint32_t x_axis_squared = x_axis * x_axis;
+    uint32_t y_axis_squared = y_axis * y_axis;
 
-    return 0;
+    for (int j = 0; j < end_y; j++)
+    {
+        for (int i = 0; i < end_x; i++)
+        {
+            /* 
+             * Formula:
+             * (x^2 / a^2) + (y^2 / b^2) <= 1
+             * (x^2 * b^2) + (y^2 * a^2) <= a^2 * b^2
+             */
+
+            uint32_t x_squared = (i - center_x) * (i - center_x);
+            uint32_t y_squared = (j - center_y) * (j - center_y);
+
+            if ((x_squared * y_axis_squared) + (y_squared * x_axis_squared) <= (x_axis_squared * y_axis_squared))
+                printf("*");
+            else
+                printf(" ");
+        }
+
+        printf("\n");
+    }
 }
