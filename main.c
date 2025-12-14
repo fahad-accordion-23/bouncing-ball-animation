@@ -4,8 +4,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#define COLS 50
-#define ROWS 20
+#define COLS 132
+#define ROWS 43
 
 typedef struct {
     char** data;
@@ -18,19 +18,33 @@ void buffer_clear(Buffer* buffer);
 void buffer_display(Buffer* buffer);
 void buffer_free(Buffer* buffer);
 
-void draw_circle(Buffer* buffer, uint32_t radius);
-void draw_ellipse(Buffer* buffer, uint32_t x_axis, uint32_t y_axis);
+typedef struct {
+    uint32_t x; 
+    uint32_t y;
+} Vector2u;
+
+typedef struct {
+    int32_t x;
+    int32_t y;
+} Vector2i;
+
+void draw_circle(Buffer* buffer, Vector2u position, uint32_t radius);
+void draw_ellipse(Buffer* buffer, Vector2u position, uint32_t x_length, uint32_t y_length);
 
 int main(int argc, char** argv)
 {
     Buffer display = { 0 };
     buffer_init(&display, COLS, ROWS);
 
+    Vector2u pos1 = { 30, 20 };
+    Vector2u pos2 = { 60, 30 };
+
     while (1)
     {
         buffer_clear(&display);
 
-        draw_ellipse(&display, 10, 5);
+        draw_ellipse(&display, pos1, 25, 12);
+        draw_ellipse(&display, pos2, 30, 15);
 
         buffer_display(&display);
 
@@ -67,11 +81,13 @@ void buffer_display(Buffer* buffer)
 {
     printf("\033[H");
 
-    for(int i = 0; i < buffer->rows; i++)
+    for(int i = 0; i < buffer->rows - 1; i++)
     {
         fwrite(buffer->data[i], 1, buffer->cols, stdout);
         printf("\n");
     }
+
+    fwrite(buffer->data[buffer->rows - 1], 1, buffer->cols, stdout);
 
     fflush(stdout);
 }
@@ -87,19 +103,23 @@ void buffer_free(Buffer* buffer)
     buffer->rows = 0;
 }
 
-void draw_circle(Buffer* buffer, uint32_t radius)
+void draw_circle(Buffer* buffer, Vector2u position, uint32_t radius)
 {
-    uint32_t center_x = radius - 1;
-    uint32_t center_y = radius - 1;
-    uint32_t diameter = radius * 2;
+    Vector2i start = { position.x - radius, position.y - radius };
+    Vector2i end = { position.x + radius, position.y + radius };
+
     uint32_t radius_squared = radius * radius;
 
-    for (int j = 0; j < diameter - 1; j++)
+    for (int j = start.y; j <= end.y; j++)
     {
-        for (int i = 0; i < diameter - 1; i++)
+        for (int i = start.x; i <= end.x; i++)
         {
-             uint32_t distance_squared = ((j - center_y) * (j - center_y)) 
-                                       + ((i - center_x) * (i - center_x));
+            if (j < 0 || j >= buffer->rows || i < 0 || i >= buffer->cols)
+                continue;
+
+            int32_t distance_x = i - position.x;
+            int32_t distance_y = j - position.y;
+            uint32_t distance_squared = (distance_x * distance_x) + (distance_y * distance_y);
 
             if (distance_squared <= radius_squared)
                 buffer->data[j][i] = '*';
@@ -107,29 +127,43 @@ void draw_circle(Buffer* buffer, uint32_t radius)
     }
 }
 
-void draw_ellipse(Buffer* buffer, uint32_t x_axis, uint32_t y_axis)
+void draw_ellipse(Buffer* buffer, Vector2u position, uint32_t x_length, uint32_t y_length)
 {
-    uint32_t center_x = x_axis;
-    uint32_t center_y = y_axis;
-    uint32_t end_x = x_axis * 2;
-    uint32_t end_y = y_axis * 2;
-    uint32_t x_axis_squared = x_axis * x_axis;
-    uint32_t y_axis_squared = y_axis * y_axis;
+    Vector2i start = { position.x - x_length, position.y - y_length };
+    Vector2i end = { position.x + x_length, position.y + y_length };
 
-    for (int j = 0; j <= end_y; j++)
+    uint32_t x_length_squared = x_length * x_length;
+    uint32_t y_length_squared = y_length * y_length;
+
+    for (int j = start.y; j <= end.y; j++)
     {
-        for (int i = 0; i <= end_x; i++)
+        for (int i = start.x; i <= end.x; i++)
         {
+            if (j < 0 || j >= buffer->rows || i < 0 || i >= buffer->cols)
+                continue;
+
             /* 
              * Formula:
-             * (x^2 / a^2) + (y^2 / b^2) <= 1
-             * (x^2 * b^2) + (y^2 * a^2) <= a^2 * b^2
+             *
+             * x := i
+             * y := j
+             * h := position.x
+             * k := position.y
+             * a := x_length
+             * b := y_length
+             * 
+             *
+             * ((x - h)^2 / a^2) + ((y - k)^2 / b^2) <= 1
+             * ((x - h)^2 * b^2) + ((y - k)^2 * a^2) <= a^2 * b^2
+             *
+             * (x - h) ^ 2 := x_squared
+             * (x - k) ^ 2 := y_squared
              */
 
-            uint32_t x_squared = (i - center_x) * (i - center_x);
-            uint32_t y_squared = (j - center_y) * (j - center_y);
+            uint32_t x_squared = (i - position.x) * (i - position.x);
+            uint32_t y_squared = (j - position.y) * (j - position.y);
 
-            if ((x_squared * y_axis_squared) + (y_squared * x_axis_squared) <= (x_axis_squared * y_axis_squared))
+            if ((x_squared * y_length_squared) + (y_squared * x_length_squared) <= (x_length_squared * y_length_squared))
                 buffer->data[j][i] = '*';
         }
     }
