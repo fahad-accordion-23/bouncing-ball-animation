@@ -1,19 +1,40 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
-void draw_circle(uint32_t radius);
-void draw_ellipse(uint32_t x_axis, uint32_t y_axis);
+#define COLS 50
+#define ROWS 20
+
+void draw_circle(char** buffer, uint32_t radius);
+void draw_ellipse(char** buffer, uint32_t x_axis, uint32_t y_axis);
 
 int main(int argc, char** argv)
 {
-    draw_circle(10);
-    printf("\n");
-    draw_ellipse(10, 5);
+    char** display = malloc(ROWS * sizeof(char*));
+    for (int i = 0; i < ROWS; i++)
+    {
+        display[i] = malloc(COLS * sizeof(char));
+        memset(display[i], ' ', COLS * sizeof(char));
+    }
+
+
+    //draw_circle(display, 10);
+    //printf("\n");
+    draw_ellipse(display, 10, 5);
+
+    for(int i = 0; i < ROWS; i++)
+    {
+        fwrite(display[i], 1, COLS, stdout);
+        printf("\n");
+    }
+
+    fflush(stdout);
 
     return 0;
 }
 
-void draw_circle(uint32_t radius)
+void draw_circle(char** buffer, uint32_t radius)
 {
     uint32_t center_x = radius - 1;
     uint32_t center_y = radius - 1;
@@ -28,16 +49,12 @@ void draw_circle(uint32_t radius)
                                        + ((i - center_x) * (i - center_x));
 
             if (distance_squared <= radius_squared)
-                printf("*");
-            else
-                printf(" ");
+                buffer[j][i] = '*';
         }
-
-        printf("\n");
     }
 }
 
-void draw_ellipse(uint32_t x_axis, uint32_t y_axis)
+void draw_ellipse(char** buffer, uint32_t x_axis, uint32_t y_axis)
 {
     uint32_t center_x = x_axis;
     uint32_t center_y = y_axis;
@@ -60,11 +77,7 @@ void draw_ellipse(uint32_t x_axis, uint32_t y_axis)
             uint32_t y_squared = (j - center_y) * (j - center_y);
 
             if ((x_squared * y_axis_squared) + (y_squared * x_axis_squared) <= (x_axis_squared * y_axis_squared))
-                printf("*");
-            else
-                printf(" ");
+                buffer[j][i] = '*';
         }
-
-        printf("\n");
     }
 }
