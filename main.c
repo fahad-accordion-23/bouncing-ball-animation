@@ -39,16 +39,16 @@ void draw_circle(uint32_t radius)
 
 void draw_ellipse(uint32_t x_axis, uint32_t y_axis)
 {
-    uint32_t center_x = x_axis - 1;
-    uint32_t center_y = y_axis - 1;
+    uint32_t center_x = x_axis;
+    uint32_t center_y = y_axis;
     uint32_t end_x = x_axis * 2;
     uint32_t end_y = y_axis * 2;
     uint32_t x_axis_squared = x_axis * x_axis;
     uint32_t y_axis_squared = y_axis * y_axis;
 
-    for (int j = 0; j < end_y; j++)
+    for (int j = 0; j <= end_y; j++)
     {
-        for (int i = 0; i < end_x; i++)
+        for (int i = 0; i <= end_x; i++)
         {
             /* 
              * Formula:
