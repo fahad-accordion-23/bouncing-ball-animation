@@ -2,36 +2,65 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define COLS 50
 #define ROWS 20
+
+char **init_buffer(uint32_t cols, uint32_t rows);
+void clear_buffer(char** buffer, uint32_t cols, uint32_t rows);
+void display_buffer(char** buffer, uint32_t cols, uint32_t rows);
 
 void draw_circle(char** buffer, uint32_t radius);
 void draw_ellipse(char** buffer, uint32_t x_axis, uint32_t y_axis);
 
 int main(int argc, char** argv)
 {
-    char** display = malloc(ROWS * sizeof(char*));
-    for (int i = 0; i < ROWS; i++)
+    char** display = init_buffer(COLS, ROWS); 
+    
+    while (1)
     {
-        display[i] = malloc(COLS * sizeof(char));
-        memset(display[i], ' ', COLS * sizeof(char));
+        clear_buffer(display, COLS, ROWS); 
+        
+        draw_ellipse(display, 10, 5);
+
+        display_buffer(display, COLS, ROWS);
     }
 
+    return 0;
+}
 
-    //draw_circle(display, 10);
-    //printf("\n");
-    draw_ellipse(display, 10, 5);
+char** init_buffer(uint32_t cols, uint32_t rows)
+{
+    char** buffer = malloc(ROWS * sizeof(char*));
+    for (int i = 0; i < ROWS; i++)
+    {
+        buffer[i] = malloc(COLS * sizeof(char));
+        memset(buffer[i], ' ', COLS * sizeof(char));
+    }
+
+    return buffer;
+}
+
+void clear_buffer(char** buffer, uint32_t cols, uint32_t rows)
+{
+    for (int i = 0; i < rows; i++)
+    {
+        memset(buffer[i], ' ', cols * sizeof(char));
+    }
+}
+
+void display_buffer(char** buffer, uint32_t cols, uint32_t rows)
+{
+    printf("\033[H");
 
     for(int i = 0; i < ROWS; i++)
     {
-        fwrite(display[i], 1, COLS, stdout);
+        fwrite(buffer[i], 1, COLS, stdout);
         printf("\n");
     }
 
     fflush(stdout);
-
-    return 0;
 }
 
 void draw_circle(char** buffer, uint32_t radius)
