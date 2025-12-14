@@ -4,8 +4,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#define COLS 132
-#define ROWS 43
+#define COLS 100
+#define ROWS 30
 
 typedef struct {
     char** data;
@@ -30,21 +30,24 @@ typedef struct {
 
 void draw_circle(Buffer* buffer, Vector2u position, uint32_t radius);
 void draw_ellipse(Buffer* buffer, Vector2u position, uint32_t x_length, uint32_t y_length);
+void draw_border(Buffer* buffer);
 
 int main(int argc, char** argv)
 {
+    printf("\033[2J\033[H");
+    fflush(stdout);
+
     Buffer display = { 0 };
     buffer_init(&display, COLS, ROWS);
 
-    Vector2u pos1 = { 30, 20 };
-    Vector2u pos2 = { 60, 30 };
+    Vector2u pos1 = { 15, 10 };
 
     while (1)
     {
         buffer_clear(&display);
 
-        draw_ellipse(&display, pos1, 25, 12);
-        draw_ellipse(&display, pos2, 30, 15);
+        draw_ellipse(&display, pos1, 10, 5);
+        draw_border(&display);
 
         buffer_display(&display);
 
@@ -167,4 +170,24 @@ void draw_ellipse(Buffer* buffer, Vector2u position, uint32_t x_length, uint32_t
                 buffer->data[j][i] = '*';
         }
     }
+}
+
+void draw_border(Buffer* buffer)
+{
+    for (int i = 0; i < buffer->cols; i++)
+    {
+        buffer->data[0][i] = '-';
+        buffer->data[buffer->rows - 1][i] = '-';
+    }
+
+    for (int j = 0; j < buffer->rows; j++)
+    {
+        buffer->data[j][0] = '|';
+        buffer->data[j][buffer->cols - 1] = '|';
+    }
+
+    buffer->data[0][0] = '+';
+    buffer->data[0][buffer->cols - 1] = '+';
+    buffer->data[buffer->rows - 1][0] = '+';
+    buffer->data[buffer->rows - 1][buffer->cols - 1] = '+';
 }
