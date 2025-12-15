@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void buffer_init(Buffer* buffer, uint32_t cols, uint32_t rows)
+void buffer_init(Buffer* buffer, int cols, int rows)
 {
     buffer->data = malloc(rows * sizeof(char*));
     for (int i = 0; i < rows; i++)
@@ -50,12 +50,12 @@ void buffer_free(Buffer* buffer)
     buffer->rows = 0;
 }
 
-void draw_circle(Buffer* buffer, Vector2u position, uint32_t radius)
+void draw_circle(Buffer* buffer, Vector2i position, int radius)
 {
     Vector2i start = { position.x - radius, position.y - radius };
     Vector2i end = { position.x + radius, position.y + radius };
 
-    uint32_t radius_squared = radius * radius;
+    int radius_squared = radius * radius;
 
     for (int j = start.y; j <= end.y; j++)
     {
@@ -64,9 +64,9 @@ void draw_circle(Buffer* buffer, Vector2u position, uint32_t radius)
             if (j < 0 || j >= buffer->rows || i < 0 || i >= buffer->cols)
                 continue;
 
-            int32_t distance_x = i - position.x;
-            int32_t distance_y = j - position.y;
-            uint32_t distance_squared = (distance_x * distance_x) + (distance_y * distance_y);
+            int distance_x = i - position.x;
+            int distance_y = j - position.y;
+            int distance_squared = (distance_x * distance_x) + (distance_y * distance_y);
 
             if (distance_squared <= radius_squared)
                 buffer->data[j][i] = '*';
@@ -74,13 +74,13 @@ void draw_circle(Buffer* buffer, Vector2u position, uint32_t radius)
     }
 }
 
-void draw_ellipse(Buffer* buffer, Vector2u position, uint32_t x_length, uint32_t y_length)
+void draw_ellipse(Buffer* buffer, Vector2i position, int x_length, int y_length)
 {
     Vector2i start = { position.x - x_length, position.y - y_length };
     Vector2i end = { position.x + x_length, position.y + y_length };
 
-    uint32_t x_length_squared = x_length * x_length;
-    uint32_t y_length_squared = y_length * y_length;
+    int x_length_squared = x_length * x_length;
+    int y_length_squared = y_length * y_length;
 
     for (int j = start.y; j <= end.y; j++)
     {
@@ -107,8 +107,8 @@ void draw_ellipse(Buffer* buffer, Vector2u position, uint32_t x_length, uint32_t
              * (x - k) ^ 2 := y_squared
              */
 
-            uint32_t x_squared = (i - position.x) * (i - position.x);
-            uint32_t y_squared = (j - position.y) * (j - position.y);
+            int x_squared = (i - position.x) * (i - position.x);
+            int y_squared = (j - position.y) * (j - position.y);
 
             if ((x_squared * y_length_squared) + (y_squared * x_length_squared) <= (x_length_squared * y_length_squared))
                 buffer->data[j][i] = '*';
