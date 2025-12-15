@@ -4,21 +4,15 @@
 
 #define COLS 100
 #define ROWS 30
+#define BORDER_WIDTH 1
 #define FPS 24
-#define LOSS 0.50f
+#define LOSS 0.10f
 #define GRAVITY 0.25f
 
 void decelerate(Vector2f* velocity)
 {
-    if (velocity->x > 0)
-        velocity->x -= LOSS;
-    else if (velocity->x < 0)
-        velocity->x += LOSS;
-
-    if (velocity->y > 0)
-        velocity->y -= LOSS;
-    else if (velocity->y < 0)
-        velocity->y += LOSS;
+    velocity->x *= (1.0f - LOSS);
+    velocity->y *= (1.0f - LOSS);
 }
 
 int main()
@@ -48,7 +42,7 @@ int main()
             decelerate(&ball_velocity);
             ball_velocity.x *= -1;
         }
-        else if (f_ball_position.x + (ball_dimensions.x + 1) >= display.cols - 1)
+        else if (f_ball_position.x + (ball_dimensions.x + 1) >= display.cols - BORDER_WIDTH)
         {
             f_ball_position.x = (display.cols - 1) - (ball_dimensions.x + 1);
             decelerate(&ball_velocity);
@@ -61,7 +55,7 @@ int main()
             decelerate(&ball_velocity);
             ball_velocity.y *= -1;
         }
-        else if (f_ball_position.y + (ball_dimensions.y + 1) >= display.rows - 1)
+        else if (f_ball_position.y + (ball_dimensions.y + 1) >= display.rows - BORDER_WIDTH)
         {
             f_ball_position.y = (display.rows - 1) - (ball_dimensions.y + 1);
             decelerate(&ball_velocity);
