@@ -5,6 +5,21 @@
 #define COLS 100
 #define ROWS 30
 #define FPS 24
+#define LOSS 0.50f
+#define GRAVITY 0.25f
+
+void decelerate(Vector2f* velocity)
+{
+    if (velocity->x > 0)
+        velocity->x -= LOSS;
+    else if (velocity->x < 0)
+        velocity->x += LOSS;
+
+    if (velocity->y > 0)
+        velocity->y -= LOSS;
+    else if (velocity->y < 0)
+        velocity->y += LOSS;
+}
 
 int main()
 {
@@ -14,39 +29,50 @@ int main()
     Buffer display = { 0 };
     buffer_init(&display, COLS, ROWS);
     
-    Vector2i ball_position = { 15, 7 };
-    Vector2i ball_dimensions = { 10, 5 };
-    Vector2i ball_velocity = { 1, 2 };
+    Vector2f f_ball_position = { 15.0, 7.0 };
+    Vector2i i_ball_position = { 15, 7 };
 
+    Vector2i ball_dimensions = { 10, 5 };
+    Vector2f ball_velocity = { 3.0, 0.0 };
+    
     while (1)
     {
-        ball_position.x += ball_velocity.x;
-        ball_position.y += ball_velocity.y;
+        ball_velocity.y += GRAVITY;
 
-        if (ball_position.x - (ball_dimensions.x + 1) <= 0)
+        f_ball_position.x += ball_velocity.x;
+        f_ball_position.y += ball_velocity.y;
+
+        if (f_ball_position.x - (ball_dimensions.x + 1) <= 0)
         {
-            ball_position.x = ball_dimensions.x + 1;
+            f_ball_position.x = ball_dimensions.x + 1;
+            decelerate(&ball_velocity);
             ball_velocity.x *= -1;
         }
-        else if (ball_position.x + (ball_dimensions.x + 1) >= display.cols - 1)
+        else if (f_ball_position.x + (ball_dimensions.x + 1) >= display.cols - 1)
         {
-            ball_position.x = (display.cols - 1) - (ball_dimensions.x + 1);
+            f_ball_position.x = (display.cols - 1) - (ball_dimensions.x + 1);
+            decelerate(&ball_velocity);
             ball_velocity.x *= -1;
         }
         
-        if (ball_position.y - (ball_dimensions.y + 1) <= 0)
+        if (f_ball_position.y - (ball_dimensions.y + 1) <= 0)
         {
-            ball_position.y = ball_dimensions.y + 1;
+            f_ball_position.y = ball_dimensions.y + 1;
+            decelerate(&ball_velocity);
             ball_velocity.y *= -1;
         }
-        else if (ball_position.y + (ball_dimensions.y + 1) >= display.rows - 1)
+        else if (f_ball_position.y + (ball_dimensions.y + 1) >= display.rows - 1)
         {
-            ball_position.y = (display.rows - 1) - (ball_dimensions.y + 1);
+            f_ball_position.y = (display.rows - 1) - (ball_dimensions.y + 1);
+            decelerate(&ball_velocity);
             ball_velocity.y *= -1;
         }
 
+        i_ball_position.x = (int)f_ball_position.x;
+        i_ball_position.y = (int)f_ball_position.y;
+
         buffer_clear(&display);
-        draw_ellipse(&display, ball_position, ball_dimensions.x, ball_dimensions.y);
+        draw_ellipse(&display, i_ball_position, ball_dimensions);
         draw_border(&display);
         buffer_display(&display);
 

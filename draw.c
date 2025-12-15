@@ -74,13 +74,13 @@ void draw_circle(Buffer* buffer, Vector2i position, int radius)
     }
 }
 
-void draw_ellipse(Buffer* buffer, Vector2i position, int x_length, int y_length)
+void draw_ellipse(Buffer* buffer, Vector2i position, Vector2i dimensions)
 {
-    Vector2i start = { position.x - x_length, position.y - y_length };
-    Vector2i end = { position.x + x_length, position.y + y_length };
+    Vector2i start = { position.x - dimensions.x, position.y - dimensions.y };
+    Vector2i end = { position.x + dimensions.x, position.y + dimensions.y };
 
-    int x_length_squared = x_length * x_length;
-    int y_length_squared = y_length * y_length;
+    int x_length_squared = dimensions.x * dimensions.x;
+    int y_length_squared = dimensions.y * dimensions.y;
 
     for (int j = start.y; j <= end.y; j++)
     {
@@ -88,24 +88,6 @@ void draw_ellipse(Buffer* buffer, Vector2i position, int x_length, int y_length)
         {
             if (j < 0 || j >= buffer->rows || i < 0 || i >= buffer->cols)
                 continue;
-
-            /* 
-             * Formula:
-             *
-             * x := i
-             * y := j
-             * h := position.x
-             * k := position.y
-             * a := x_length
-             * b := y_length
-             * 
-             *
-             * ((x - h)^2 / a^2) + ((y - k)^2 / b^2) <= 1
-             * ((x - h)^2 * b^2) + ((y - k)^2 * a^2) <= a^2 * b^2
-             *
-             * (x - h) ^ 2 := x_squared
-             * (x - k) ^ 2 := y_squared
-             */
 
             int x_squared = (i - position.x) * (i - position.x);
             int y_squared = (j - position.y) * (j - position.y);
