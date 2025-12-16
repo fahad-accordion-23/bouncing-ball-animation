@@ -2,16 +2,6 @@
 
 A simple bouncing ball animation rendered in the terminal using C.
 
-## Demo
-
-The ball bounces around a bordered play area, losing 10% of its energy on each collision while being constantly pulled down by gravity.
-
-## Requirements
-
-- GCC compiler
-- POSIX-compliant system (Linux, macOS, WSL)
-- Terminal with ANSI escape code support
-
 ## Building
 
 ```bash
